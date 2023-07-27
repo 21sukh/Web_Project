@@ -1,56 +1,94 @@
-<?php include 'header.php' ?>
-
-<div class="conatiner-fluid" style="background:url('asset/images/banner.jpg')";>
-			<div class="text-white text-center pt-5 pb-5" style="background-color: rgba(0,0,0,0.5); height: 100%;">	
-		    
-			<h3 class="pt-5">Have A Question For Us?</h3>
-			<p class="pb-5"> <a href='index.php' class="text-decoration-none text-white"> Home </a> / FAQ</p>
+<?php include'header.php' ?>
+<script src='../editor/ckeditor.js'></script>
+	<div class="card-header ">
+        <h4 class="card-title"> + Add New FAQ </h4>                    
+    </div>
+    <div class="card-body">
+	<div class="row mt-4">
+		<div class="col-md-7">	
+			<form action='' method="post">
+				<div class="form-group">
+					<label>Question</label>
+					<input type="text" name="ques" required="required"class='form-control' placeholder="Type your Question here"  />
+				</div>
 			
-			</div>	
+					<select name="category" required="required"class='form-control'>
+						<option disabled="disabled" selected="selected"> Select Category</option>
+						<?php 
+					$sql="select * from category";
+					$result=$conn->query($sql);
+					while($row=$result->fetch_assoc()){
+						echo "<option>".$row['category']."</option>";
+						}
+				?>
+
+					</select>
+			<div class="form-group"> <br>
+				    <label>Answer</label>
+					<textarea name="ans" required="required"class='form-control' rows=3 maxlength="300" placeholder="Write Answer here ... " ></textarea>
+			</div> <hr>	
+			<button type="submit" class="btn btn-info bg" name='save'>Save FAQ</button>
+			<button type="reset" class="btn btn-dark" >Clear</button>
+			</form> <br>	
+			<?php 
+				if(isset($_POST['save'])){
+					$que=addslashes($_POST['ques']);
+					$ans=addslashes($_POST['ans']);
+					$sql="Insert Into faq(ques,ans,category) values
+					('$que','$ans','$_POST[category]')";
+					 if($conn->query($sql)){
+					 	echo "<div class='alert alert-success'> Record Saved </div>";
+					 }
+					 else{
+					 	echo "<div class='alert alert-danger'> Error In Code ".$conn->error."</div>";
+					 }
+
+				}
+			?>
 		</div>
 
-<div class="container pt-5 pb-5">
-	<div class="row">	
-		<div class="col-md-3">	
-			<ul class="list-group">
-				<?php
-					$sql="select * from category";
-		$result1=$conn->query($sql);
-		while($row1=$result1->fetch_assoc()){
-			$category=$row1['category']; 
-				$category1=urlencode($row1['category']); 
-  echo "<li class='list-group-item' style='background:var(--themeColor2);''><a href='faq.php?category=$category1' class='text-decoration-none text-white font-weight-bold'> $category </a></li>";}
-   ?>
-</ul>
-			</div>
-        <div class="col-md-9">	
-        		<div class="accordion" id="accordionExample">
+		<div class="col-md-5">
+			<table class="table table-sm">
+			<thead><tr><th class="w-75">Question-Answer</th><th>Action</th></tr></thead>	
+			<tbody>
+				<?php 
+					$sql="select * from faq";
+					$result=$conn->query($sql);
+					while($row=$result->fetch_assoc()){
+						$que=$row['ques'];
+						echo "<tr>";
+						echo "<td>".$row['ques']."</td>"; 
+						echo "<td>  <a href='faq.php?d=$que' class='text-decoration-none'> 
+						<i class='icofont-trash text-danger' title='Delete'> </i> 
+						</a> </td>";             
+						echo "</tr>";
+				}
+				?>
+			</tbody>		
+			</table>
 			<?php 
-			if(isset($_GET['category']))
-				$category=$_GET['category'];
-			else
-				$category='Healthy Eating';
-		$sql="select * from faq where category='$category'";
-		$result=$conn->query($sql);
-		while($row=$result->fetch_assoc()){
-			$qid=$row['quesId']; ?> 
-			  <div class="card">
-    <div class="card-header bg-white" id="heading<?php echo $qid ;?>">
-      <h1 class="mb-0">
-        <button class="btn btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse<?php echo $qid ;?>" style="font-size:large;" aria-expanded="true" aria-controls="collapse<?php echo $qid ;?>">
-        <?php echo $row['ques']; ?>
-        </button>
-      </h1>
-    </div>
-    <div id="collapse<?php echo $qid ;?>" class="collapse" aria-labelledby="heading<?php echo $qid ;?>" data-parent="#accordionExample">
-      <div class="card-body">
-        <div class="pt-3 text-justify"> <?php echo $row['ans']; ?></div>
-      </div>
-    </div>
-  </div>
-			 <?php } ?> 
-	</div>
-		</div>	
+				if(isset($_GET['d'])){
+					$sql="delete from faq where ques='$_GET[d]'";
+
+					if($conn->query($sql)){
+					 echo "<script>window.alert('Record Deleted ');window.location='faq.php';</script>";
+					 }
+					 else{
+					 	echo "<div class='alert alert-danger'> Error In Code ".$conn->error."</div>";
+					 }
+					
+				}
+
+			?>
+		</div>
 	</div>	
-</div>		
-<?php include 'footer.php' ?>
+
+</div>
+
+<script>CKEDITOR.replace('ans');</script>
+<?php include'footer.php' ?>
+
+
+
+
+					 
